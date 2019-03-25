@@ -21,6 +21,7 @@ val strokeFactor : Int = 90
 val sizeFactor : Float = 2.9f
 val foreColor : Int = Color.parseColor("#4CAF50")
 val backColor : Int = Color.parseColor("#212121")
+val delay : Long = 20
 
 fun Int.inverse() : Float = 1f / this
 fun Float.maxScale(i : Int, n : Int) : Float = Math.max(0f, this - i * n.inverse())
@@ -28,7 +29,7 @@ fun Float.divideScale(i : Int, n : Int) : Float = Math.min(n.inverse(), maxScale
 fun Float.scaleFactor() : Float = Math.floor(this / scDiv).toFloat()
 fun Float.mirrorValue(a : Int, b : Int) : Float = (1 - scaleFactor()) * a.inverse() + scaleFactor() * b.inverse()
 fun Float.updateValue(dir : Float, a : Int, b : Int) : Float = mirrorValue(a, b) * dir * scGap
-fun Int.sjf() : Float = 1f - (this % 2)
+fun Int.sjf() : Float = 1f - 2 * (this % 2)
 
 fun Canvas.drawSSENode(i : Int, scale : Float, paint : Paint) {
     val w : Float = width.toFloat()
@@ -37,18 +38,19 @@ fun Canvas.drawSSENode(i : Int, scale : Float, paint : Paint) {
     val size : Float = gap / sizeFactor
     val sc1 : Float = scale.divideScale(0, 2)
     val sc2 : Float = scale.divideScale(1, 2)
-    val yGap : Float = size / squares
+    val yGap : Float = (2 * size) / squares
     paint.strokeCap = Paint.Cap.ROUND
     paint.strokeWidth = Math.min(w, h) / strokeFactor
     paint.color = foreColor
     paint.style = Paint.Style.STROKE
     save()
     translate(w / 2, gap * (i + 1))
+    rotate(90f * sc2)
     for (j in 0..(squares - 1)) {
         val sc : Float = sc1.divideScale(j, squares)
         val x : Float = yGap * sc * j.sjf()
         save()
-        translate(x, yGap * j)
+        translate(0f, -size + yGap * j)
         val path : Path = Path()
         path.moveTo(0f, 0f)
         path.lineTo(x, 0f)
@@ -105,7 +107,7 @@ class SquareSideExpView(ctx : Context) : View(ctx) {
             if (animated) {
                 cb()
                 try {
-                    Thread.sleep(50)
+                    Thread.sleep(delay)
                     view.invalidate()
                 } catch(ex : Exception) {
 
@@ -184,7 +186,7 @@ class SquareSideExpView(ctx : Context) : View(ctx) {
         fun update(cb : (Int, Float) -> Unit) {
             curr.update {i, scl ->
                 curr = curr.getNext(dir) {
-                    dir * -1
+                    dir *= -1
                 }
                 cb(i, scl)
             }
