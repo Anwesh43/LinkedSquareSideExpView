@@ -193,4 +193,26 @@ class SquareSideExpView(ctx : Context) : View(ctx) {
             curr.startUpdating(cb)
         }
     }
+
+    data class Renderer(var view : SquareSideExpView) {
+
+        private val animator : Animator = Animator(view)
+        private val sse : SquareSideExp = SquareSideExp(0)
+
+        fun render(canvas : Canvas, paint : Paint) {
+            canvas.drawColor(backColor)
+            sse.draw(canvas, paint)
+            animator.animate {
+                sse.update {i, scl ->
+                    animator.stop()
+                }
+            }
+        }
+
+        fun handleTap() {
+            sse.startUpdating {
+                animator.start()
+            }
+        }
+    }
 }
