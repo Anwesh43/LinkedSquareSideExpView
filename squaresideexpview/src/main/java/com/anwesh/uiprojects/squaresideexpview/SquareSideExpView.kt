@@ -216,4 +216,13 @@ class SquareSideExpView(ctx : Context) : View(ctx) {
             }
         }
     }
+
+    companion object {
+
+        fun create(activity : Activity) : SquareSideExpView {
+            var view : SquareSideExpView = SquareSideExpView(activity)
+            activity.setContentView(view)
+            return view
+        }
+    }
 }
